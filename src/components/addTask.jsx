@@ -1,9 +1,18 @@
 /* eslint-disable react/prop-types */
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { XLg } from "react-bootstrap-icons";
 
 export default function AddTask({ handleAddTask }) {
   const [selected, setSelected] = useState(0);
+  const [priority, setPriority] = useState("Low");
+  const [title, setTitle] = useState("");
+  const [task, setTask] = useState({
+    name: "",
+    priority: "",
+    status: "",
+    progress: "",
+    id: "",
+  });
   const selected1 = {
     padding: "5px 20px",
     border: "none",
@@ -54,8 +63,29 @@ export default function AddTask({ handleAddTask }) {
     backgroundColor: "white",
     cursor: "pointer",
   };
+
+  //   useEffect(()=>{
+  //     handleAddTask(false, task);
+  //     setTask({
+  //       name: "",
+  //       priority: "",
+  //       status: "",
+  //       progress: "",
+  //       id: "",
+  //     });
+  //   },[task])
+
+  const addTask = (value) => {
+    handleAddTask(false, {
+      name: title,
+      priority: selected == 1 ? "High" : selected == 2 ? "Medium" : "Low",
+      status: "To Do",
+      progress: "0",
+      id: "0",
+    });
+  };
   const openTask = (value) => {
-    handleAddTask(value);
+    handleAddTask(value, null);
   };
   return (
     <>
@@ -83,6 +113,8 @@ export default function AddTask({ handleAddTask }) {
             width: "100%",
             borderRadius: "10px",
           }}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
         />
         <p className="p-0 m-0">Priority</p>
         <div className="d-flex flex-row mt-2 ">
@@ -118,6 +150,7 @@ export default function AddTask({ handleAddTask }) {
               width: "90px",
               padding: "0 !important",
             }}
+            onClick={() => addTask(false)}
           >
             Add
           </button>

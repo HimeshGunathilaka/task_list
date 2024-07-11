@@ -5,6 +5,8 @@ import Task from "./components/task";
 import AddTask from "./components/addTask";
 import EditTask from "./components/editTask";
 import DeleteTask from "./components/deleteTask";
+import { db } from "./services/firebaseConfig.js";
+import { addDoc, collection, getDocs } from "firebase/firestore";
 
 const tasks = [
   {
@@ -49,21 +51,59 @@ function App() {
   const [deleteTask, setDeleteTask] = useState(false);
   const [deleteTaskId, setDeleteTaskId] = useState(0);
   const [editTaskId, setEditTaskId] = useState(0);
+  const [data, setData] = useState([]);
+  const [task, setTask] = useState({
+    name: "",
+    priority: "",
+    status: "",
+    progress: "",
+    id: "",
+  });
 
+  //fetch data
   useEffect(() => {
-    // tasks.splice(1,)
-  }, [deleteTaskId]);
-  const handleAddTask = (value) => {
+    const fetchData = async () => {
+      const querySnapshot = await getDocs(collection(db, "task_list"));
+      const dataList = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setData(dataList);
+    };
+
+    fetchData();
+  }, []);
+
+  //add data
+  const addTasks = async (newTask) => {
+    try {
+      const docRef = await addDoc(collection(db, "task_list"), newTask);
+      // setTask({
+      //   name: "",
+      //   priority: "",
+      //   status: "",
+      //   progress: "",
+      //   id: "",
+      // });
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
+  };
+
+  useEffect(() => {}, [deleteTaskId]);
+  const handleAddTask = (value, newTask) => {
     setAddTask(value);
+    console.log(newTask);
+    if (!newTask.name == "") {
+      addTasks(newTask);
+    }
   };
 
   const handleEditTask = (value, id) => {
-    console.log(id);
     setEditTask(value);
     setEditTaskId(id);
   };
   const handleDelete = (value, id) => {
-    console.log(id);
     setDeleteTask(value);
     setDeleteTaskId(id);
   };
@@ -82,7 +122,7 @@ function App() {
           </button>
         </div>
         <div className="task-wrapper d-flex flex-column mt-3 px-4">
-          {tasks.map((task, index) => {
+          {data.map((task, index) => {
             return (
               <Task
                 props={task}
