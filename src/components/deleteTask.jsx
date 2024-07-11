@@ -2,9 +2,8 @@
 import React from "react";
 
 export default function DeleteTask({ handleDelete, id }) {
-  const openDelete = (value) => {
-    console.log(value);
-    handleDelete(value, id);
+  const openDelete = (value, auth) => {
+    handleDelete(value, id, auth);
   };
   return (
     <div className="add-task-container d-flex flex-column p-5 justify-content-center align-items-center">
@@ -24,7 +23,7 @@ export default function DeleteTask({ handleDelete, id }) {
             width: "90px",
             padding: "0 !important",
           }}
-          onClick={() => openDelete(true)}
+          onClick={() => openDelete(true, true)}
         >
           Delete
         </button>
@@ -39,7 +38,7 @@ export default function DeleteTask({ handleDelete, id }) {
             backgroundColor: "white",
             color: "blueviolet",
           }}
-          onClick={() => openDelete(false)}
+          onClick={() => openDelete(false, false)}
         >
           Cancel
         </button>

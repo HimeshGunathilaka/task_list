@@ -22,7 +22,7 @@ export default function Task({ props, handleDelete, handleEditTask }) {
     borderBottomColor: "#E7F0DC",
   };
   const deleteTask = (value, id) => {
-    handleDelete(true, id);
+    handleDelete(true, id, false);
   };
 
   const editTask = (value, id) => {
@@ -94,7 +94,7 @@ export default function Task({ props, handleDelete, handleEditTask }) {
                 height={35}
                 color="black"
                 style={{ cursor: "pointer" }}
-                onClick={() => editTask(true, props.id)}
+                onClick={() => editTask(true, props.name)}
               />
               <Trash
                 width={35}
@@ -102,7 +102,7 @@ export default function Task({ props, handleDelete, handleEditTask }) {
                 color="red"
                 className="ms-4"
                 style={{ cursor: "pointer" }}
-                onClick={() => deleteTask(true, props.id)}
+                onClick={() => deleteTask(true, props.name)}
               />
             </div>
           </div>

@@ -1,8 +1,18 @@
 /* eslint-disable react/prop-types */
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { XLg } from "react-bootstrap-icons";
 
-export default function EditTask({ handleEditTask, id }) {
+export default function EditTask({
+  handleEditTask,
+  name,
+  priority,
+  id,
+  status,
+  progress,
+}) {
+  useEffect(() => {
+    console.log(name);
+  }, [name]);
   const [selected, setSelected] = useState(0);
   const selected1 = {
     padding: "5px 20px",
@@ -54,8 +64,18 @@ export default function EditTask({ handleEditTask, id }) {
     backgroundColor: "white",
     cursor: "pointer",
   };
-  const openTask = (value) => {
-    handleEditTask(value, id);
+  const openTask = (value, auth) => {
+    handleEditTask(
+      value,
+      {
+        name: name,
+        status: status,
+        progress: progress,
+        id: id,
+        priority: priority,
+      },
+      auth
+    );
   };
   return (
     <>
@@ -67,7 +87,7 @@ export default function EditTask({ handleEditTask, id }) {
             height={25}
             color="black"
             style={{ cursor: "pointer" }}
-            onClick={() => openTask(false)}
+            onClick={() => openTask(false, false)}
           />
         </div>
         <p className="p-0 m-0">Task</p>
@@ -83,6 +103,7 @@ export default function EditTask({ handleEditTask, id }) {
             width: "100%",
             borderRadius: "10px",
           }}
+          value={name}
         />
         <p className="p-0 m-0">Priority</p>
         <div className="d-flex flex-row mt-2 ">
@@ -118,9 +139,9 @@ export default function EditTask({ handleEditTask, id }) {
               width: "90px",
               padding: "0 !important",
             }}
-            onClick={() => openTask(true)}
+            onClick={() => openTask(true, true)}
           >
-            Add
+            Edit
           </button>
         </div>
       </div>

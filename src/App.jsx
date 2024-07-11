@@ -6,52 +6,32 @@ import AddTask from "./components/addTask";
 import EditTask from "./components/editTask";
 import DeleteTask from "./components/deleteTask";
 import { db } from "./services/firebaseConfig.js";
-import { addDoc, collection, getDocs } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  getDocs,
+  query,
+  where,
+  deleteDoc,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
 
-const tasks = [
-  {
-    name: "Go to gym",
-    priority: "High",
-    status: "To Do",
-    progress: "0",
-    id: "0",
-  },
-  {
-    name: "Read a book",
-    priority: "Low",
-    status: "Done",
-    progress: "2",
-    id: "1",
-  },
-  {
-    name: "Go to market",
-    priority: "Medium",
-    status: "In Progress",
-    progress: "1",
-    id: "2",
-  },
-  {
-    name: "Restart learning solidworks",
-    priority: "High",
-    status: "Done",
-    progress: "2",
-    id: "3",
-  },
-  {
-    name: "Change slider to scroll",
-    priority: "High",
-    status: "Done",
-    progress: "2",
-    id: "4",
-  },
-];
 function App() {
   const [addtask, setAddTask] = useState(false);
   const [edittask, setEditTask] = useState(false);
   const [deleteTask, setDeleteTask] = useState(false);
-  const [deleteTaskId, setDeleteTaskId] = useState(0);
-  const [editTaskId, setEditTaskId] = useState(0);
+  const [deleteTaskId, setDeleteTaskId] = useState("");
+  const [editTaskId, setEditTaskId] = useState("");
   const [data, setData] = useState([]);
+  const [confirmed, setConfirmed] = useState(false);
+  const [selectedTask, setSelectedTask] = useState({
+    name: "",
+    priority: "",
+    status: "",
+    progress: "",
+    id: "",
+  });
   const [task, setTask] = useState({
     name: "",
     priority: "",
@@ -60,17 +40,24 @@ function App() {
     id: "",
   });
 
-  //fetch data
   useEffect(() => {
-    const fetchData = async () => {
-      const querySnapshot = await getDocs(collection(db, "task_list"));
-      const dataList = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setData(dataList);
-    };
+    console.log(selectedTask);
+  }, [selectedTask]);
 
+  useEffect(() => {
+    // setSelectedTask(data.filter((item) => item.name == editTaskId));
+    console.log(editTaskId);
+  }, [editTaskId]);
+  //fetch data
+  const fetchData = async () => {
+    const querySnapshot = await getDocs(collection(db, "task_list"));
+    const dataList = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    setData(dataList);
+  };
+  useEffect(() => {
     fetchData();
   }, []);
 
@@ -78,16 +65,35 @@ function App() {
   const addTasks = async (newTask) => {
     try {
       const docRef = await addDoc(collection(db, "task_list"), newTask);
-      // setTask({
-      //   name: "",
-      //   priority: "",
-      //   status: "",
-      //   progress: "",
-      //   id: "",
-      // });
+      fetchData();
     } catch (e) {
       console.error("Error adding document: ", e);
     }
+  };
+
+  //delete data
+  const deleteTaskByName = async (id) => {
+    const q = query(collection(db, "task_list"), where("name", "==", id));
+    const querySnapshot = await getDocs(q);
+
+    querySnapshot.forEach(async (document) => {
+      await deleteDoc(doc(db, "task_list", document.id));
+    });
+    fetchData();
+  };
+
+  //update data
+  const updateTask = async (task) => {
+    const q = query(
+      collection(db, "task_list"),
+      where("name", "==", task.name)
+    );
+    const querySnapshot = await getDocs(q);
+
+    querySnapshot.forEach(async (document) => {
+      const docRef = doc(db, "task_list", document.id);
+      await updateDoc(docRef, task);
+    });
   };
 
   useEffect(() => {}, [deleteTaskId]);
@@ -99,13 +105,21 @@ function App() {
     }
   };
 
-  const handleEditTask = (value, id) => {
+  const handleEditTask = (value, newTask, auth) => {
     setEditTask(value);
-    setEditTaskId(id);
+    setEditTaskId(newTask.name);
+    if (auth == true) {
+      updateTask(newTask);
+      setEditTask(false);
+    }
   };
-  const handleDelete = (value, id) => {
+  const handleDelete = (value, id, auth) => {
     setDeleteTask(value);
     setDeleteTaskId(id);
+    if (auth == true) {
+      deleteTaskByName(id);
+      setDeleteTask(false);
+    }
   };
   return (
     <>
@@ -182,7 +196,14 @@ function App() {
               backdropFilter: "blur(15px)",
             }}
           >
-            <EditTask handleEditTask={handleEditTask} id={editTaskId} />
+            <EditTask
+              handleEditTask={handleEditTask}
+              name={data.filter((item) => item.name == editTaskId).name}
+              status={data.filter((item) => item.name == editTaskId).status}
+              progress={data.filter((item) => item.name == editTaskId).progress}
+              id={data.filter((item) => item.name == editTaskId).id}
+              priority={data.filter((item) => item.name == editTaskId).priority}
+            />
           </div>
         ) : (
           <></>
