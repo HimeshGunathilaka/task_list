@@ -105,10 +105,23 @@ function App() {
     }
   };
 
-  const handleEditTask = (value, newTask, auth) => {
+  // const handleEditTask = (value, newTask, auth) => {
+  //   console.log(newTask.name);
+  //   setEditTask(value);
+  //   setEditTaskId(newTask.name);
+  //   if (auth == true) {
+  //     updateTask(newTask);
+  //     setEditTask(false);
+  //   }
+  // };
+
+  const handleEditTask = (value, newTask = {}, auth = false) => {
     setEditTask(value);
-    setEditTaskId(newTask.name);
-    if (auth == true) {
+    if (value === true) {
+      setTask(newTask);
+      setEditTaskId(newTask.id);
+    }
+    if (auth) {
       updateTask(newTask);
       setEditTask(false);
     }
